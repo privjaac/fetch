@@ -1,0 +1,27 @@
+{
+  "name": "@jaac/fetch.proxy",
+  "version": "0.0.1",
+  "description": "Cliente HTTP elegante/minimalista para gestionar múltiples servicios API",
+  "main": "dist/fetch.proxy.js",
+  "types": "dist/fetch.proxy.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublish": "yarn build"
+  },
+  "repository": "git@github.com:privjaac/fetch.git",
+  "author": "jaac <alex_alvarezcasas@hotmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.8.2"
+  },
+  "keywords": [
+    "fetch",
+    "http",
+    "api",
+    "proxy",
+    "typescript"
+  ]
+}
