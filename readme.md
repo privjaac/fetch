@@ -45,6 +45,7 @@ npm install @jaac/fetch.proxy
 - ✅ Soporte para todos los métodos HTTP (GET, POST, PUT, PATCH, DELETE)
 - ✅ Registro de múltiples servicios API con diferente URL base
 - ✅ Manejo automático de headers y opciones por servicio
+- ✅ Interceptores para request y response
 - ✅ Capacidad para abortar peticiones
 - ✅ API chainable con sintaxis limpia
 - ✅ Gestión de errores HTTP integrada
@@ -94,6 +95,96 @@ await api.strapi.delete(`/posts/${postId}`);
 await api.chat.post('/messages', {
   text: 'Hola Mundo'
 });
+```
+
+### Usando Interceptores
+
+Los interceptores te permiten modificar las solicitudes antes de enviarlas y transformar las respuestas antes de que sean procesadas.
+
+#### Interceptores de Solicitud (Request)
+
+```typescript
+// Añadir headers personalizados a todas las solicitudes
+api.strapi.request.use(async (request: RequestInit) => {
+  const headers = new Headers(request.headers);
+  headers.append("x-ray-id", "1234567890");
+  headers.append("x-code-id", "987654321");
+  return {
+    ...request,
+    headers
+  };
+});
+```
+
+#### Interceptores de Respuesta (Response)
+
+```typescript
+// Transformar todas las respuestas para un formato estándar
+api.strapi.response.use(async (response: Response) => {
+  const data = await response.json();
+  if (response.ok) {
+    return {
+      message: "Respuesta correcta",
+      code: "A0001",
+      data: {...data},
+    };
+  }
+  return {
+    message: "Respuesta incorrecta",
+    code: "A0002",
+    data: {},
+  };
+});
+```
+
+#### Ejemplo Completo con Interceptores
+
+```typescript
+import {fetchProxy} from '@jaac/fetch.proxy';
+
+fetchProxy.register("demoApi", "https://httpbin.org", {
+  "x-master-id": "1234567890",
+});
+const api = fetchProxy;
+
+// Interceptor de solicitud
+api.demoApi.request.use(async (request: RequestInit) => {
+  const headers = new Headers(request.headers);
+  headers.append("x-ray-id", "1234567890");
+  headers.append("x-code-id", "987654321");
+  return {
+    ...request,
+    headers
+  };
+});
+
+// Interceptor de respuesta
+api.demoApi.response.use(async (response: Response) => {
+  const data = await response.json();
+  if (response.ok)
+    return {
+      message: "Respuesta correcta",
+      code: "A0001",
+      data: {...data},
+    };
+  return {
+    message: "Respuesta incorrecta",
+    code: "A0002",
+    data: {},
+  };
+});
+
+async function main() {
+  const responseNotFound = await api.demoApi.get("/headers-x");
+  const responseData = await responseNotFound.json();
+  console.log("Respuesta incorrecta:", responseData);
+  
+  const responseFound = await api.demoApi.get("/headers");
+  const responseDataFound = await responseFound.json();
+  console.log("Respuesta correcta:", responseDataFound);
+}
+
+main().catch(console.error);
 ```
 
 ### Abortar Peticiones
@@ -265,6 +356,13 @@ Registra un nuevo servicio API.
 Elimina un servicio API registrado previamente.
 
 - `name`: Nombre del servicio a eliminar
+
+### Interceptores
+
+Cada servicio registrado tiene acceso a los siguientes interceptores:
+
+- `.request.use(interceptor)`: Añade un interceptor que modifica la solicitud antes de enviarla
+- `.response.use(interceptor)`: Añade un interceptor que transforma la respuesta antes de procesarla
 
 ### Métodos por servicio
 
