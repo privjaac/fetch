@@ -142,13 +142,13 @@ api.strapi.response.use(async (response: Response) => {
 ```typescript
 import {fetchProxy} from '@jaac/fetch.proxy';
 
-fetchProxy.register("demoApi", "https://httpbin.org", {
+fetchProxy.register("demo", "https://httpbin.org", {
   "x-master-id": "1234567890",
 });
 const api = fetchProxy;
 
 // Interceptor de solicitud
-api.demoApi.request.use(async (request: RequestInit) => {
+api.demo.request.use(async (request: RequestInit) => {
   const headers = new Headers(request.headers);
   headers.append("x-ray-id", "1234567890");
   headers.append("x-code-id", "987654321");
@@ -159,7 +159,7 @@ api.demoApi.request.use(async (request: RequestInit) => {
 });
 
 // Interceptor de respuesta
-api.demoApi.response.use(async (response: Response) => {
+api.demo.response.use(async (response: Response) => {
   const data = await response.json();
   if (response.ok)
     return {
@@ -175,11 +175,11 @@ api.demoApi.response.use(async (response: Response) => {
 });
 
 async function main() {
-  const responseNotFound = await api.demoApi.get("/headers-x");
+  const responseNotFound = await api.demo.get("/headers-x");
   const responseData = await responseNotFound.json();
   console.log("Respuesta incorrecta:", responseData);
   
-  const responseFound = await api.demoApi.get("/headers");
+  const responseFound = await api.demo.get("/headers");
   const responseDataFound = await responseFound.json();
   console.log("Respuesta correcta:", responseDataFound);
 }
